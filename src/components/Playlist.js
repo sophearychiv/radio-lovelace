@@ -25,32 +25,69 @@ const calculatePlayTime = (tracks) => {
   return `${hours}:${minutes}:${seconds}`;
 }
 
-const Playlist = (props) => {
-  const tracks = props.tracks;
-  const trackCount = tracks.length;
-  const playtime = calculatePlayTime(tracks);
-  const trackElements = tracks.map((track, i) => {
-    // We use "spread syntax" here to pass in all the properties of 
-    // the variable 'track' as props. Go look it up!
-    return (
-      <Track
-        key={track.id}
-        {...track}
-      />
-    );
-  });
+class Playlist extends React.Component {
 
-  return (
-    <div className="playlist">
-      <h2>{props.side} Playlist</h2>
-      <p>
-        {trackCount} tracks - {playtime}
-      </p>
-      <ul className="playlist--track-list">
-        {trackElements}
-      </ul>
-    </div>
-  );
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      tracks: this.props.tracks
+    }
+
+  }
+
+  markFavorite = (trackIndex) => {
+
+    const previousFavState = this.state.tracks[trackIndex].favorite
+    let updatedTracks = this.state.tracks;
+    updatedTracks[trackIndex].favorite = !previousFavState;
+    this.setState({
+      tracks: updatedTracks,
+    });
+  }
+
+  moveToTop = (trackIndex) => {
+    let updatedTracks = this.state.tracks;
+    updatedTracks.unshift(updatedTracks.splice(trackIndex, 1)[0]);
+    this.setState({
+      tracks: updatedTracks
+    });
+  }
+
+  render(){
+    const tracks = this.props.tracks;
+    const trackCount = tracks.length;
+    const playtime = calculatePlayTime(tracks);
+    const favorite = false;
+    const trackElements = tracks.map((track, i) => {
+      // We use "spread syntax" here to pass in all the properties of 
+      // the variable 'track' as props. Go look it up!
+      return (
+        <div key={i}>
+          <Track
+            key={track.id}
+            index={i}
+            markFavoriteCallBack = {this.markFavorite}
+            favorite= {favorite}
+            moveToTopCallBack = {this.moveToTop}
+            {...track}
+          />
+        </div>
+      );
+    });
+
+    return (
+      <div className="playlist">
+        <h2>{this.props.side} Playlist</h2>
+        <p>
+          {trackCount} tracks - {playtime}
+        </p>
+        <ul className="playlist--track-list">
+          {trackElements}
+        </ul>
+      </div>
+    );
+  }
 }
 
 Playlist.propTypes = {
